@@ -23,7 +23,20 @@ static void InitDaoService(IServiceCollection services)
     //services.AddScoped<IS_Image, S_Image>();
     //services.AddScoped<IS_Product, S_Product>();
     services.AddScoped<IS_Account, S_Account>();
+    services.AddScoped<IS_Post, S_Post>();
 }
+
+// Thêm CORS vào dịch vụ
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
 
 // Add services to the container.
 
@@ -33,6 +46,8 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 InitUtilitiesService(builder.Services);
 InitDaoService(builder.Services);
+
+
 
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
@@ -106,7 +121,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -156,6 +174,8 @@ else
         });
     }
 }
+
+app.UseCors("AllowAllOrigins");
 
 app.UseIpRateLimiting(); //Apply IpRateLimit in middleware
 

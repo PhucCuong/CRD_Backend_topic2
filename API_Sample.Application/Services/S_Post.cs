@@ -65,9 +65,8 @@ namespace API_Sample.Application.Services
                 data.Content = request.Content;
                 data.FieldId = request.FieldId;
                 data.ViewCount = request.ViewCount;
-                data.Status = request.Status;
+                data.Status = request.IsActive;
                 data.Username = request.Username;
-                data.Status = request.Status;
                 _context.Posts.Add(data);
                 var save = await _context.SaveChangesAsync();
                 if (save == 0)
@@ -202,9 +201,8 @@ namespace API_Sample.Application.Services
                 data.Content = request.Content;
                 data.FieldId = request.FieldId;
                 data.ViewCount = request.ViewCount;
-                data.Status = request.Status;
+                data.Status = request.IsActive;
                 data.Username = request.Username;
-                data.Status = request.Status;
                 _context.Update(data);
                 var save = await _context.SaveChangesAsync();
                 if (save == 0)

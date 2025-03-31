@@ -21,6 +21,6 @@ namespace API_Sample.Models.Request
         public string NewsCategoryName { get; set; }
 
         [Column("status")]
-        public bool Status { get; set; }
+        public bool IsActive { get; set; }
     }
 }

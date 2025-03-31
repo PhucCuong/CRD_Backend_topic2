@@ -17,6 +17,6 @@ namespace API_Sample.Models.Response
         public string FieldName { get; set; }
 
         [Column("status_")]
-        public int Status { get; set; }
+        public int IsActive { get; set; }
     }
 }

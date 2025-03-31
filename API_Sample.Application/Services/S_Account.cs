@@ -81,6 +81,13 @@ namespace API_Sample.Application.Services
             var res = new ResponseData<MRes_Account>(); // biến trả về client
             try
             {
+                
+                if (request == null)
+                {
+                    Console.WriteLine("request is null!");
+                    res.error.message = "request is null!";
+                    return res;
+                }
                 var isExistsUsername = await _context.Accounts.FirstOrDefaultAsync(x => x.Username == request.Username) != null;
 
                 // xử lí trùng lặp tên đăng nhập
@@ -89,6 +96,8 @@ namespace API_Sample.Application.Services
                     res.error.message = "Tên đăng nhập đã tồn tại!";
                     return res;
                 }
+
+
 
                 var data = new Account();
                 data.Username = request.Username.ToUpper().Trim();
@@ -112,6 +121,7 @@ namespace API_Sample.Application.Services
             }
             catch (Exception ex) 
             {
+                Console.WriteLine("123");
                 res.result = -1;
                 res.error.code = 500;
                 res.error.message = $"Exception: {ex.Message}\r\n{ex.InnerException?.Message}";

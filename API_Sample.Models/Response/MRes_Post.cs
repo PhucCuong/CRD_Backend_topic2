@@ -37,6 +37,6 @@ namespace API_Sample.Models.Response
         public string Username { get; set; }
 
         [Column("status")]
-        public bool Status { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -33,7 +33,7 @@ namespace API_Sample.Models.Request
         public string Content { get; set; }
         
         [Column("status")]
-        public bool Status { get; set; }
+        public bool IsActive { get; set; }
 
         [Column("name_slug")]
         [StringLength(255)]

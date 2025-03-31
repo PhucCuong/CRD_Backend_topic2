@@ -22,13 +22,14 @@ namespace API_Sample.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(MReq_Account request) 
         {
+            Console.WriteLine($"Received: Username={request?.Username}, PassWord={request?.PassWord}");
             if (!ModelState.IsValid)
                 return Ok(new ResponseData<MRes_Account>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));
             var res = await _s_account.Create(request);
             return Ok(res);
         }
 
-        [HttpPost("/Login")]
+        [HttpPost]
         public async Task<IActionResult> Login(MReq_Account request)
         {
             if (!ModelState.IsValid)
