@@ -23,5 +23,8 @@ namespace API_Sample.Models.Response
         [Column("short_description")]
         [StringLength(255)]
         public string ShortDescription { get; set; }
+
+        [Column("status")]
+        public bool Status { get; set; }
     }
 }

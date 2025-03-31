@@ -18,6 +18,9 @@ public partial class NewsCategory
     [StringLength(255)]
     public string NewsCategoryName { get; set; }
 
+    [Column("status")]
+    public bool Status { get; set; }
+
     [InverseProperty("NewsCategory")]
     public virtual ICollection<News> News { get; set; } = new List<News>();
 }

@@ -31,6 +31,9 @@ namespace API_Sample.Models.Request
         [Required]
         [Column("content")]
         public string Content { get; set; }
+        
+        [Column("status")]
+        public bool Status { get; set; }
 
     }
 }

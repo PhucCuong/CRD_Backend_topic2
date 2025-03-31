@@ -39,6 +39,9 @@ public partial class Post
     [Unicode(false)]
     public string Username { get; set; }
 
+    [Column("status")]
+    public bool Status { get; set; }
+
     [ForeignKey("FieldId")]
     [InverseProperty("Posts")]
     public virtual FieldOfActivity Field { get; set; }

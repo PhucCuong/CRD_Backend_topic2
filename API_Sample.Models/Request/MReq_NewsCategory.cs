@@ -19,5 +19,8 @@ namespace API_Sample.Models.Request
         [Column("news_category_name")]
         [StringLength(255)]
         public string NewsCategoryName { get; set; }
+
+        [Column("status")]
+        public bool Status { get; set; }
     }
 }

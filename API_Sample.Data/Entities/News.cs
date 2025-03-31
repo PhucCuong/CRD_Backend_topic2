@@ -41,6 +41,9 @@ public partial class News
     [Column("update_by", TypeName = "datetime")]
     public DateTime UpdateBy { get; set; }
 
+    [Column("status")]
+    public bool Status { get; set; }
+
     [ForeignKey("NewsCategoryId")]
     [InverseProperty("News")]
     public virtual NewsCategory NewsCategory { get; set; }

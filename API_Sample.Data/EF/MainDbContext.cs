@@ -247,6 +247,8 @@ public partial class MainDbContext : DbContext
         {
             entity.HasKey(e => e.NewsId).HasName("PK__News__4C27CCD8FE1A8D1F");
 
+            entity.Property(e => e.Status).HasDefaultValue(true);
+
             entity.HasOne(d => d.NewsCategory).WithMany(p => p.News)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_News_NewsCategory");
@@ -255,6 +257,8 @@ public partial class MainDbContext : DbContext
         modelBuilder.Entity<NewsCategory>(entity =>
         {
             entity.HasKey(e => e.NewsCategoryId).HasName("PK__NewsCate__01154D786E594BC9");
+
+            entity.Property(e => e.Status).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<NewsComment>(entity =>
@@ -351,6 +355,8 @@ public partial class MainDbContext : DbContext
         modelBuilder.Entity<Post>(entity =>
         {
             entity.HasKey(e => e.PostId).HasName("PK__Post__3ED78766BC893D4E");
+
+            entity.Property(e => e.Status).HasDefaultValue(true);
 
             entity.HasOne(d => d.Field).WithMany(p => p.Posts)
                 .OnDelete(DeleteBehavior.ClientSetNull)

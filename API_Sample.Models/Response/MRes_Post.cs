@@ -35,5 +35,8 @@ namespace API_Sample.Models.Response
         [Column("username")]
         [StringLength(30)]
         public string Username { get; set; }
+
+        [Column("status")]
+        public bool Status { get; set; }
     }
 }
