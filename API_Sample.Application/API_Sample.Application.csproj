@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="EFCore.BulkExtensions" Version="8.1.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3703" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
@@ -20,6 +21,12 @@
     <ProjectReference Include="..\API_Sample.Data\API_Sample.Data.csproj" />
     <ProjectReference Include="..\API_Sample.Models\API_Sample.Models.csproj" />
     <ProjectReference Include="..\API_Sample.Utilities\API_Sample.Utilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GoogleDriveConfig\webcrd-credentials.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

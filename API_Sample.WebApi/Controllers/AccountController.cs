@@ -54,5 +54,14 @@ namespace API_Sample.WebApi.Controllers
             var res = await _s_account.Delete(user_name);
             return Ok(res);
         }
+
+        [HttpPut("change-avatar")]
+        public async Task<IActionResult> ChangeAvatar(IFormFile file, string user_name)
+        {
+            if (!ModelState.IsValid)
+                return Ok(new ResponseData<MRes_Account>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));
+            var res = await _s_account.ChangeAvatar(file, user_name);
+            return Ok(res);
+        }
     }
 }

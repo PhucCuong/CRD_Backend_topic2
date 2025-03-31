@@ -14,9 +14,19 @@ using API_Sample.Data.Entities;    // phải có dòng này
 using API_Sample.Utilities.Constants;
 using Microsoft.Extensions.Configuration;  // khai báo thư viện
 
+// khai báo để jwwt
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+
+// Khai báo google.apis.drive.v3
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Google.Apis.Upload;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 
 
@@ -31,6 +41,8 @@ namespace API_Sample.Application.Services
 
         Task<ResponseData<MRes_Account>> GetByUserName(string user_name);
         public Task<ResponseData<MRes_Account>> Login(MReq_Account request);
+
+        public Task<ResponseData<string>> ChangeAvatar(IFormFile file, string user_name);
     }
     public class S_Account : IS_Account
     {
@@ -38,11 +50,31 @@ namespace API_Sample.Application.Services
         private readonly IMapper _mapper;
         private readonly string _secretKey;
 
+        private readonly DriveService _driveService;
+
         public S_Account(MainDbContext context, IMapper mapper, IConfiguration configuration) 
         { 
             _context = context;
             _mapper = mapper;
             _secretKey = configuration["AppSettings:SecretKey"];
+
+            // setip google drive 
+
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GoogleDriveConfig", "webcrd-credentials.json");
+
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException("Không tìm thấy file cấu hình Google Drive!", path);
+            }
+
+            var credential = GoogleCredential.FromFile(path) 
+                .CreateScoped(DriveService.ScopeConstants.DriveFile);
+
+            _driveService = new DriveService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "webcrd"
+            });
         }
         public async Task<ResponseData<MRes_Account>> Create(MReq_Account request)
         {
@@ -282,5 +314,96 @@ namespace API_Sample.Application.Services
             }
         }
 
+
+        // google drive
+        public async Task<string> UploadFileAsync(IFormFile file, string folderId = "1BBNuAiuaJLofZAkoKWmFkPCfbNyVrpwc")
+        {
+            try
+            {
+                var fileMetadata = new Google.Apis.Drive.v3.Data.File
+                {
+                    Name = file.FileName,
+                    //Parents = new List<string> { folderId } // Gán file vào thư mục cụ thể
+                };
+
+                using var stream = file.OpenReadStream();
+                var request = _driveService.Files.Create(fileMetadata, stream, file.ContentType);
+                request.Fields = "id";
+                var progress = await request.UploadAsync();
+
+                if (progress.Status != Google.Apis.Upload.UploadStatus.Completed)
+                {
+                    Console.WriteLine($"Upload thất bại: {progress.Exception?.Message}");
+                    return null;
+                }
+
+                // Cấp quyền truy cập công khai
+                var permission = new Google.Apis.Drive.v3.Data.Permission
+                {
+                    Type = "anyone",
+                    Role = "reader"
+                };
+                await _driveService.Permissions.Create(permission, request.ResponseBody.Id).ExecuteAsync();
+
+                string fileUrl = $"https://drive.google.com/file/d/{request.ResponseBody.Id}";
+                Console.WriteLine($"File uploaded: {fileUrl}");
+
+                return fileUrl;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi upload file: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<ResponseData<string>> ChangeAvatar (IFormFile file , string user_name)
+        {
+            var res = new ResponseData<string>();
+            try
+            {
+                if(file == null || file.Length == 0)
+                {
+                    res.error.message = "File không hợp lệ!";
+                    return res;
+                }
+                var user = _context.Accounts.FirstOrDefault(x => x.Username == user_name);
+                if (user == null) 
+                {
+                    res.error.message = "Không tìm thấy Account!";
+                    return res;
+                }
+                var avatar_url = await UploadFileAsync(file, "1BBNuAiuaJLofZAkoKWmFkPCfbNyVrpwc");
+
+                // kiểm tra avatar_url ngay đây
+
+                if (avatar_url == null)
+                {
+                    res.error.code = 400;
+                    res.error.message = "Thay đổi avatar thất bại!";
+                    return res;
+                }
+
+                user.AvatarUrl = avatar_url;
+
+                _context.Accounts.Update(user);
+                var save = await _context.SaveChangesAsync();
+                if (save == 0)
+                {
+                    res.error.code = 400;
+                    res.error.message = MessageErrorConstants.EXCEPTION_DO_NOT_UPDATE;
+                    return res;
+                }
+                res.data = avatar_url;
+                res.result = 1;
+                res.error.message = "Thay đổi avatar thành công!";
+            } catch (Exception ex)
+            {
+                res.result = -1;
+                res.error.code = 500;
+                res.error.message = $"Exception: {ex.Message}\r\n{ex.InnerException?.Message}";
+            }
+            return res;
+        }
     }
 }
