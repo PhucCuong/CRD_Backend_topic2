@@ -42,6 +42,22 @@ public partial class Post
     [Column("status")]
     public bool Status { get; set; }
 
+    [Column("name_slug")]
+    [StringLength(255)]
+    public string NameSlug { get; set; }
+
+    [Column("create_at", TypeName = "datetime")]
+    public DateTime? CreateAt { get; set; }
+
+    [Column("create_by")]
+    public int? CreateBy { get; set; }
+
+    [Column("update_at", TypeName = "datetime")]
+    public DateTime? UpdateAt { get; set; }
+
+    [Column("update_by")]
+    public int? UpdateBy { get; set; }
+
     [ForeignKey("FieldId")]
     [InverseProperty("Posts")]
     public virtual FieldOfActivity Field { get; set; }

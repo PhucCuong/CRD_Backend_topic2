@@ -42,5 +42,16 @@ namespace API_Sample.Models.Request
 
         [Column("status")]
         public bool Status { get; set; }
+
+        [Column("name_slug")]
+        [StringLength(255)]
+        public string NameSlug { get; set; }
+    }
+
+    public class MReq_PostPaging : PagingRequestBase
+    {
+        public string SequenceStatus { get; set; }
+
+        public string SearchText { get; set; }
     }
 }

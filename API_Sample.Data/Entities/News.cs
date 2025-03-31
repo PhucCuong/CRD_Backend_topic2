@@ -30,19 +30,23 @@ public partial class News
     public string Content { get; set; }
 
     [Column("create_at", TypeName = "datetime")]
-    public DateTime CreateAt { get; set; }
+    public DateTime? CreateAt { get; set; }
 
-    [Column("create_by", TypeName = "datetime")]
-    public DateTime CreateBy { get; set; }
+    [Column("create_by")]
+    public int? CreateBy { get; set; }
 
     [Column("update_at", TypeName = "datetime")]
-    public DateTime UpdateAt { get; set; }
+    public DateTime? UpdateAt { get; set; }
 
-    [Column("update_by", TypeName = "datetime")]
-    public DateTime UpdateBy { get; set; }
+    [Column("update_by")]
+    public int? UpdateBy { get; set; }
 
     [Column("status")]
     public bool Status { get; set; }
+
+    [Column("name_slug")]
+    [StringLength(255)]
+    public string NameSlug { get; set; }
 
     [ForeignKey("NewsCategoryId")]
     [InverseProperty("News")]

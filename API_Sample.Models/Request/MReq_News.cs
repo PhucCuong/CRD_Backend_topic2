@@ -35,5 +35,9 @@ namespace API_Sample.Models.Request
         [Column("status")]
         public bool Status { get; set; }
 
+        [Column("name_slug")]
+        [StringLength(255)]
+        public string NameSlug { get; set; }
+
     }
 }
