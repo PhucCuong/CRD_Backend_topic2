@@ -21,6 +21,20 @@ public partial class NewsCategory
     [Column("status")]
     public bool Status { get; set; }
 
+    [Column("create_at", TypeName = "datetime")]
+    public DateTime? CreateAt { get; set; }
+
+    [Column("create_by")]
+    [StringLength(50)]
+    public string CreateBy { get; set; }
+
+    [Column("update_at", TypeName = "datetime")]
+    public DateTime? UpdateAt { get; set; }
+
+    [Column("update_by")]
+    [StringLength(50)]
+    public string UpdateBy { get; set; }
+
     [InverseProperty("NewsCategory")]
     public virtual ICollection<News> News { get; set; } = new List<News>();
 }

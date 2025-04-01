@@ -50,12 +50,12 @@ namespace API_Sample.Application.Services
             var res = new ResponseData<MRes_Post>();
             try
             {
-                var isExistsCode = await _context.Posts.FirstOrDefaultAsync(x => x.PostId == request.PostId) != null;
-                if (isExistsCode)
-                {
-                    res.error.message = "Mã trùng lặp!";
-                    return res;
-                }
+                //var isExistsCode = await _context.Posts.FirstOrDefaultAsync(x => x.PostId == request.PostId) != null;
+                //if (isExistsCode)
+                //{
+                //    res.error.message = "Mã trùng lặp!";
+                //    return res;
+                //}
 
                 var data = new Post();
                 data.PostId = _context.Posts.OrderByDescending(x => x.PostId).Select(x => x.PostId).FirstOrDefault() + 1;
@@ -67,6 +67,8 @@ namespace API_Sample.Application.Services
                 data.ViewCount = request.ViewCount;
                 data.Status = request.IsActive;
                 data.Username = request.Username;
+                data.CreateAt = DateTime.Now;
+                data.CreateBy = request.CreateBy;
                 _context.Posts.Add(data);
                 var save = await _context.SaveChangesAsync();
                 if (save == 0)
@@ -181,12 +183,12 @@ namespace API_Sample.Application.Services
             var res = new ResponseData<MRes_Post>();
             try
             {
-                var isExistsCode = await _context.Posts.FirstOrDefaultAsync(x => x.PostId == request.PostId) != null;
-                if (isExistsCode)
-                {
-                    res.error.message = "Mã trùng lặp!";
-                    return res;
-                }
+                //var isExistsCode = await _context.Posts.FirstOrDefaultAsync(x => x.PostId == request.PostId) != null;
+                //if (isExistsCode)
+                //{
+                //    res.error.message = "Mã trùng lặp!";
+                //    return res;
+                //}
 
                 var data = await _context.Posts.FindAsync(request.PostId);
                 if (data == null)
@@ -203,6 +205,8 @@ namespace API_Sample.Application.Services
                 data.ViewCount = request.ViewCount;
                 data.Status = request.IsActive;
                 data.Username = request.Username;
+                data.UpdateAt = DateTime.Now;
+                data.UpdateBy = request.UpdateBy;
                 _context.Update(data);
                 var save = await _context.SaveChangesAsync();
                 if (save == 0)

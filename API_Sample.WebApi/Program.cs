@@ -24,6 +24,7 @@ static void InitDaoService(IServiceCollection services)
     //services.AddScoped<IS_Product, S_Product>();
     services.AddScoped<IS_Account, S_Account>();
     services.AddScoped<IS_Post, S_Post>();
+    services.AddScoped<IS_FieldOfActivity, S_FieldOfActivity>();
 }
 
 // Add services to the container.

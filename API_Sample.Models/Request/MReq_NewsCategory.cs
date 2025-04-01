@@ -22,5 +22,19 @@ namespace API_Sample.Models.Request
 
         [Column("status")]
         public bool IsActive { get; set; }
+
+        [Column("create_at", TypeName = "datetime")]
+        public DateTime? CreateAt { get; set; }
+
+        [Column("create_by")]
+        [StringLength(50)]
+        public string CreateBy { get; set; }
+
+        [Column("update_at", TypeName = "datetime")]
+        public DateTime? UpdateAt { get; set; }
+
+        [Column("update_by")]
+        [StringLength(50)]
+        public string UpdateBy { get; set; }
     }
 }

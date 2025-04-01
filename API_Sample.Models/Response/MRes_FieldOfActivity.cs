@@ -11,6 +11,10 @@ namespace API_Sample.Models.Response
 {
     public class MRes_FieldOfActivity:BaseModel.History
     {
+        [Key]
+        [Column("field_id")]
+        public int FieldId { get; set; }
+
         [Required]
         [Column("field_name")]
         [StringLength(50)]
@@ -18,5 +22,19 @@ namespace API_Sample.Models.Response
 
         [Column("status_")]
         public int IsActive { get; set; }
+
+        [Column("create_at", TypeName = "datetime")]
+        public DateTime? CreateAt { get; set; }
+
+        [Column("create_by")]
+        [StringLength(50)]
+        public string CreateBy { get; set; }
+
+        [Column("update_at", TypeName = "datetime")]
+        public DateTime? UpdateAt { get; set; }
+
+        [Column("update_by")]
+        [StringLength(50)]
+        public string UpdateBy { get; set; }
     }
 }
