@@ -26,18 +26,6 @@ static void InitDaoService(IServiceCollection services)
     services.AddScoped<IS_Post, S_Post>();
 }
 
-// Thêm CORS vào dịch vụ
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAllOrigins",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
-});
-
 // Add services to the container.
 
 builder.Services.AddDbContext<MainDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MainConnectString")));
@@ -120,7 +108,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin() // Cho phép tất cả các origin (frontend)
+                        .AllowAnyMethod() // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE)
+                        .AllowAnyHeader()); // Cho phép tất cả header
+});
 
 var app = builder.Build();
 
@@ -180,6 +174,9 @@ app.UseCors("AllowAllOrigins");
 app.UseIpRateLimiting(); //Apply IpRateLimit in middleware
 
 app.UseMiddleware<SecurityHeadersMiddleware>();
+
+app.UseCors("AllowAll");
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API_Sample.Data.Entities;
 
+[Index("NameSlug", Name = "UQ_News", IsUnique = true)]
 public partial class News
 {
     [Key]
@@ -33,13 +34,15 @@ public partial class News
     public DateTime? CreateAt { get; set; }
 
     [Column("create_by")]
-    public int? CreateBy { get; set; }
+    [StringLength(50)]
+    public string CreateBy { get; set; }
 
     [Column("update_at", TypeName = "datetime")]
     public DateTime? UpdateAt { get; set; }
 
     [Column("update_by")]
-    public int? UpdateBy { get; set; }
+    [StringLength(50)]
+    public string UpdateBy { get; set; }
 
     [Column("status")]
     public bool Status { get; set; }

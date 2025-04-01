@@ -38,7 +38,7 @@ namespace API_Sample.WebApi.Controllers
         }
 
         [HttpPut("update-status/{post_id}")]
-        public async Task<IActionResult> UpdateStatus(int post_id, bool status, int updatedBy)
+        public async Task<IActionResult> UpdateStatus(int post_id, bool status, string updatedBy)
         {
             if (!ModelState.IsValid)
                 return Ok(new ResponseData<MRes_Post>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API_Sample.Data.Entities;
 
 [Table("Post")]
+[Index("NameSlug", Name = "UQ_Post", IsUnique = true)]
 public partial class Post
 {
     [Key]
@@ -50,13 +51,15 @@ public partial class Post
     public DateTime? CreateAt { get; set; }
 
     [Column("create_by")]
-    public int? CreateBy { get; set; }
+    [StringLength(50)]
+    public string CreateBy { get; set; }
 
     [Column("update_at", TypeName = "datetime")]
     public DateTime? UpdateAt { get; set; }
 
     [Column("update_by")]
-    public int? UpdateBy { get; set; }
+    [StringLength(50)]
+    public string UpdateBy { get; set; }
 
     [ForeignKey("FieldId")]
     [InverseProperty("Posts")]

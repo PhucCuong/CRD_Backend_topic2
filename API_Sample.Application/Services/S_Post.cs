@@ -21,7 +21,7 @@ namespace API_Sample.Application.Services
 
         Task<ResponseData<MRes_Post>> Update(MReq_Post request);
 
-        Task<ResponseData<MRes_Post>> UpdateStatus(int post_id, bool status, int updatedBy);
+        Task<ResponseData<MRes_Post>> UpdateStatus(int post_id, bool status, string updatedBy);
 
         //Task<ResponseData<List<MRes_Post>>> UpdateStatusList(string sequenceIds, short status, int updatedBy);
 
@@ -225,7 +225,7 @@ namespace API_Sample.Application.Services
             return res;
         }
 
-        public async Task<ResponseData<MRes_Post>> UpdateStatus(int post_id, bool status, int updatedBy)
+        public async Task<ResponseData<MRes_Post>> UpdateStatus(int post_id, bool status, string updatedBy)
         {
             var res = new ResponseData<MRes_Post>();
             try

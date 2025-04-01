@@ -46,6 +46,14 @@ namespace API_Sample.Models.Request
         [Column("name_slug")]
         [StringLength(255)]
         public string NameSlug { get; set; }
+
+        [Column("create_by")]
+        [StringLength(50)]
+        public string CreateBy { get; set; }
+
+        [Column("update_by")]
+        [StringLength(50)]
+        public string UpdateBy { get; set; }
     }
 
     public class MReq_PostPaging : PagingRequestBase
