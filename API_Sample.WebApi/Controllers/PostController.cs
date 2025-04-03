@@ -3,8 +3,10 @@ using API_Sample.Models.Common;
 using API_Sample.Models.Request;
 using API_Sample.Models.Response;
 using API_Sample.WebApi.Lib;
+using Google.Apis.Drive.v3.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace API_Sample.WebApi.Controllers
 {
@@ -20,7 +22,7 @@ namespace API_Sample.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(MReq_Post request)
+        public async Task<IActionResult> Create([FromBody] MReq_Post request)
         {
             if (!ModelState.IsValid)
                 return Ok(new ResponseData<MRes_Post>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));
@@ -64,12 +66,21 @@ namespace API_Sample.WebApi.Controllers
             return Ok(res);
         }
 
-        [HttpGet("get-list-by-status/{status}")]
+        [HttpGet("{status}")]
         public async Task<IActionResult> GetListByStatus(bool status)
         {
             if (!ModelState.IsValid)
                 return Ok(new ResponseData<MRes_Post>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));
             var res = await _s_post.GetListByStatus(status);
+            return Ok(res);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> AddAvatarPost(IFormFile file, int post_id)
+        {
+            if (!ModelState.IsValid)
+                return Ok(new ResponseData<MRes_Post>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));
+            var res = await _s_post.AddAvatarPost(file, post_id);
             return Ok(res);
         }
     }

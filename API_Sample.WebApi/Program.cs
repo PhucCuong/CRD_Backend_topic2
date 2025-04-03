@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text;
+using System.Text.Encodings.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,6 +117,7 @@ builder.Services.AddCors(options =>
                         .AllowAnyMethod() // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE)
                         .AllowAnyHeader()); // Cho phép tất cả header
 });
+
 
 var app = builder.Build();
 

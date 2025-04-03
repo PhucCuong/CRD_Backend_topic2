@@ -12,6 +12,11 @@ using API_Sample.Utilities.Constants;
 using API_Sample.Utilities;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Microsoft.AspNetCore.Http;
+
 
 namespace API_Sample.Application.Services
 {
@@ -34,31 +39,72 @@ namespace API_Sample.Application.Services
         Task<ResponseData<List<MRes_Post>>> GetListByPaging(MReq_PostPaging request);
 
         Task<ResponseData<List<MRes_Post>>> GetListBySequenceStatusSearchText(string sequenceStatus, string searchText);
+
+        public Task<ResponseData<string>> AddAvatarPost(IFormFile file, int post_id);
     }
     public class S_Post : IS_Post
     {
         private readonly MainDbContext _context;
         private readonly IMapper _mapper;
 
+        private readonly DriveService _driveService;
+
         public S_Post(MainDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
+
+            // Đường dẫn tệp tin credentials.json
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GoogleDriveConfig", "webcrd-credentials.json");
+
+            // Đường dẫn tệp cache để lưu trữ thông tin xác thực
+            var cacheFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GoogleDriveConfig", "google-credentials-cache.json");
+
+            GoogleCredential credential;
+
+            if (File.Exists(cacheFilePath))
+            {
+                // Đọc thông tin credential đã lưu trong cache
+                using (var stream = new FileStream(cacheFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    credential = GoogleCredential.FromStream(stream)
+                                 .CreateScoped(DriveService.ScopeConstants.DriveFile);
+                }
+            }
+            else
+            {
+                // Nếu không có file cache, tạo mới từ credentials.json
+                if (!File.Exists(path))
+                {
+                    throw new FileNotFoundException("Không tìm thấy file cấu hình Google Drive!", path);
+                }
+
+                credential = GoogleCredential.FromFile(path)
+                                 .CreateScoped(DriveService.ScopeConstants.DriveFile);
+
+                // Lưu thông tin credential vào file cache để sử dụng lần sau
+                using (var stream = new FileStream(cacheFilePath, FileMode.Create, FileAccess.Write))
+                {
+                    var jsonCredential = credential.ToString(); // Không thể sử dụng .ToJson, thay vào đó dùng .ToString
+                    var writer = new StreamWriter(stream);
+                    writer.Write(jsonCredential);
+                }
+            }
+
+            // Khởi tạo Google Drive Service
+            _driveService = new DriveService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "webcrd"
+            });
         }
+
         public async Task<ResponseData<MRes_Post>> Create(MReq_Post request)
         {
             var res = new ResponseData<MRes_Post>();
             try
             {
-                //var isExistsCode = await _context.Posts.FirstOrDefaultAsync(x => x.PostId == request.PostId) != null;
-                //if (isExistsCode)
-                //{
-                //    res.error.message = "Mã trùng lặp!";
-                //    return res;
-                //}
-
                 var data = new Post();
-                data.PostId = _context.Posts.OrderByDescending(x => x.PostId).Select(x => x.PostId).FirstOrDefault() + 1;
                 data.Title = request.Title;
                 data.NameSlug = StringHelper.ToUrlClean(request.Title.Substring(0,10));
                 data.ShortDescription = request.ShortDescription;
@@ -69,6 +115,8 @@ namespace API_Sample.Application.Services
                 data.Username = request.Username;
                 data.CreateAt = DateTime.Now;
                 data.CreateBy = request.CreateBy;
+                data.UpdateAt = DateTime.Now;
+                data.UpdateBy = request.Username;
                 _context.Posts.Add(data);
                 var save = await _context.SaveChangesAsync();
                 if (save == 0)
@@ -256,6 +304,97 @@ namespace API_Sample.Application.Services
                 res.data = getById.data;
                 res.result = 1;
                 res.error.message = MessageErrorConstants.UPDATE_SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                res.result = -1;
+                res.error.code = 500;
+                res.error.message = $"Exception: {ex.Message}\r\n{ex.InnerException?.Message}";
+            }
+            return res;
+        }
+
+        // google drive
+        public async Task<string> UploadFileAsync(IFormFile file, string folderId = "1FvhEJ-0UZ-FBjFNx-DQHpnl6rfwPOk1d")
+        {
+            try
+            {
+                var fileMetadata = new Google.Apis.Drive.v3.Data.File
+                {
+                    Name = file.FileName,
+                    //Parents = new List<string> { folderId } // Gán file vào thư mục cụ thể
+                };
+
+                using var stream = file.OpenReadStream();
+                var request = _driveService.Files.Create(fileMetadata, stream, file.ContentType);
+                request.Fields = "id";
+                var progress = await request.UploadAsync();
+
+                if (progress.Status != Google.Apis.Upload.UploadStatus.Completed)
+                {
+                    Console.WriteLine($"Upload thất bại: {progress.Exception?.Message}");
+                    return null;
+                }
+
+                // Cấp quyền truy cập công khai
+                var permission = new Google.Apis.Drive.v3.Data.Permission
+                {
+                    Type = "anyone",
+                    Role = "reader"
+                };
+                await _driveService.Permissions.Create(permission, request.ResponseBody.Id).ExecuteAsync();
+
+                string fileUrl = $"https://drive.google.com/file/d/{request.ResponseBody.Id}";
+                Console.WriteLine($"File uploaded: {fileUrl}");
+
+                return fileUrl;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi upload file: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<ResponseData<string>> AddAvatarPost(IFormFile file, int post_id)
+        {
+            var res = new ResponseData<string>();
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    res.error.message = "File không hợp lệ!";
+                    return res;
+                }
+                var post_image = new PostImage();
+                
+                var avatar_url = await UploadFileAsync(file, "1FvhEJ-0UZ-FBjFNx-DQHpnl6rfwPOk1d");
+
+                // kiểm tra avatar_url ngay đây
+
+                if (avatar_url == null)
+                {
+                    res.error.code = 400;
+                    res.error.message = "Thêm ảnh cho cho bài viết thất bại!";
+                    return res;
+                }
+
+                post_image.ImageUrl = avatar_url;
+                post_image.PostId = post_id;
+                post_image.IsAvatar = true;
+                post_image.CreateAt = DateTime.Now;
+
+                _context.PostImages.Update(post_image);
+                var save = await _context.SaveChangesAsync();
+                if (save == 0)
+                {
+                    res.error.code = 400;
+                    res.error.message = MessageErrorConstants.EXCEPTION_DO_NOT_UPDATE;
+                    return res;
+                }
+                res.data = avatar_url;
+                res.result = 1;
+                res.error.message = "Thêm ảnh bài viết thành công!";
             }
             catch (Exception ex)
             {

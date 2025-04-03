@@ -20,12 +20,10 @@ namespace API_Sample.Models.Request
 
         [Required]
         [Column("news_name")]
-        [StringLength(255)]
         public string NewsName { get; set; }
 
         [Required]
         [Column("short_description")]
-        [StringLength(255)]
         public string ShortDescription { get; set; }
 
         [Required]

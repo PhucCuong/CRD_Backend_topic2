@@ -52,8 +52,8 @@ namespace API_Sample.Application.Services
 
         private readonly DriveService _driveService;
 
-        public S_Account(MainDbContext context, IMapper mapper, IConfiguration configuration) 
-        { 
+        public S_Account(MainDbContext context, IMapper mapper, IConfiguration configuration)
+        {
             _context = context;
             _mapper = mapper;
             _secretKey = configuration["AppSettings:SecretKey"];
@@ -67,7 +67,7 @@ namespace API_Sample.Application.Services
                 throw new FileNotFoundException("Không tìm thấy file cấu hình Google Drive!", path);
             }
 
-            var credential = GoogleCredential.FromFile(path) 
+            var credential = GoogleCredential.FromFile(path)
                 .CreateScoped(DriveService.ScopeConstants.DriveFile);
 
             _driveService = new DriveService(new BaseClientService.Initializer
@@ -81,7 +81,7 @@ namespace API_Sample.Application.Services
             var res = new ResponseData<MRes_Account>(); // biến trả về client
             try
             {
-                
+
                 if (request == null)
                 {
                     Console.WriteLine("request is null!");
@@ -119,7 +119,7 @@ namespace API_Sample.Application.Services
                 res.error.code = 201;
                 res.error.message = MessageErrorConstants.CREATE_SUCCESS;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine("123");
                 res.result = -1;
@@ -251,13 +251,13 @@ namespace API_Sample.Application.Services
                     Token = GenerateToken(user)
                 };
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 res.result = -1;
                 res.error.code = 500;
                 res.error.message = $"Exception: {ex.Message}\r\n{ex.InnerException?.Message}";
             }
-            return res ;
+            return res;
         }
 
         private string GenerateToken(Account user)
@@ -270,8 +270,8 @@ namespace API_Sample.Application.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                 new Claim("UserName", user.Username),   
-                new Claim("EmployeeId", user.EmployeeId.ToString()),    
+                 new Claim("UserName", user.Username),
+                new Claim("EmployeeId", user.EmployeeId.ToString()),
                 new Claim("RoleId", user.RoleId.ToString()),
                 //roles
 
@@ -367,18 +367,18 @@ namespace API_Sample.Application.Services
             }
         }
 
-        public async Task<ResponseData<string>> ChangeAvatar (IFormFile file , string user_name)
+        public async Task<ResponseData<string>> ChangeAvatar(IFormFile file, string user_name)
         {
             var res = new ResponseData<string>();
             try
             {
-                if(file == null || file.Length == 0)
+                if (file == null || file.Length == 0)
                 {
                     res.error.message = "File không hợp lệ!";
                     return res;
                 }
                 var user = _context.Accounts.FirstOrDefault(x => x.Username == user_name);
-                if (user == null) 
+                if (user == null)
                 {
                     res.error.message = "Không tìm thấy Account!";
                     return res;
@@ -407,7 +407,8 @@ namespace API_Sample.Application.Services
                 res.data = avatar_url;
                 res.result = 1;
                 res.error.message = "Thay đổi avatar thành công!";
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 res.result = -1;
                 res.error.code = 500;

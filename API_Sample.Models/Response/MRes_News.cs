@@ -16,16 +16,18 @@ namespace API_Sample.Models.Response
 
         [Required]
         [Column("news_name")]
-        [StringLength(255)]
         public string NewsName { get; set; }
 
         [Required]
         [Column("short_description")]
-        [StringLength(255)]
         public string ShortDescription { get; set; }
 
         [Column("status")]
         public bool IsActive { get; set; }
+
+        [Required]
+        [Column("content")]
+        public string Content { get; set; }
 
         [Column("create_by")]
         [StringLength(50)]

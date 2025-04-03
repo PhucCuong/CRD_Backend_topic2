@@ -6,10 +6,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using API_Sample.Models.Common;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace API_Sample.Models.Request
 {
-    public class MReq_Post:BaseModel.History
+    public class EscapeJsonConverter : JsonConverter<string>
+    {
+        public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return reader.GetString();
+        }
+
+        public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
+        {
+            string escaped = value.Replace("\n", "\\n").Replace("\r", "\\r");
+            writer.WriteStringValue(escaped);
+        }
+    }
+    public class MReq_Post
     {
         [Key]
         [Column("post_id")]
@@ -17,16 +32,15 @@ namespace API_Sample.Models.Request
 
         [Required]
         [Column("title")]
-        [StringLength(50)]
         public string Title { get; set; }
 
         [Required]
         [Column("short_description")]
-        [StringLength(255)]
         public string ShortDescription { get; set; }
 
         [Required]
         [Column("content")]
+        [JsonConverter(typeof(EscapeJsonConverter))]
         public string Content { get; set; }
 
         [Column("field_id")]

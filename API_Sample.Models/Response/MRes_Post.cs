@@ -13,12 +13,10 @@ namespace API_Sample.Models.Response
     {
         [Required]
         [Column("title")]
-        [StringLength(50)]
         public string Title { get; set; }
 
         [Required]
         [Column("short_description")]
-        [StringLength(255)]
         public string ShortDescription { get; set; }
 
         [Required]
