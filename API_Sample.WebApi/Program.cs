@@ -2,6 +2,7 @@
 using API_Sample.Application.Services;
 using API_Sample.Application.Ultilities;
 using API_Sample.Data.EF;
+using API_Sample.Data.Entities;
 using API_Sample.WebApi.Middlewares;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +27,8 @@ static void InitDaoService(IServiceCollection services)
     services.AddScoped<IS_Account, S_Account>();
     services.AddScoped<IS_Post, S_Post>();
     services.AddScoped<IS_FieldOfActivity, S_FieldOfActivity>();
+    services.AddScoped<IS_News, S_News>();
+    services.AddScoped<IS_NewsCategory, S_NewsCategory>();
 }
 
 // Add services to the container.

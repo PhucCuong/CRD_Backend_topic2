@@ -11,54 +11,44 @@ using API_Sample.Models.Response;
 using API_Sample.Utilities.Constants;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using SQLitePCL;
 
 namespace API_Sample.Application.Services
 {
-    public interface IS_FieldOfActivity
-    {
-        Task<ResponseData<MRes_FieldOfActivity>> Create(MReq_FieldOfActivity request);
+    public interface IS_NewsCategory {
+        Task<ResponseData<MRes_NewsCategory>> Create(MReq_NewsCategory request);
 
-        Task<ResponseData<MRes_FieldOfActivity>> Update(MReq_FieldOfActivity request);
+        Task<ResponseData<MRes_NewsCategory>> Update(MReq_NewsCategory request);
 
-        Task<ResponseData<MRes_FieldOfActivity>> UpdateStatus(int id, int status, string updatedBy);
+        Task<ResponseData<MRes_NewsCategory>> UpdateStatus(int id, bool status, string updatedBy);
 
         Task<ResponseData<int>> Delete(int id);
 
-        Task<ResponseData<MRes_FieldOfActivity>> GetById(int id);
+        Task<ResponseData<MRes_NewsCategory>> GetById(int id);
 
-        Task<ResponseData<List<MRes_FieldOfActivity>>> GetListByStatus(int status);
+        Task<ResponseData<List<MRes_NewsCategory>>> GetListByStatus(bool status);
     }
-    public class S_FieldOfActivity : IS_FieldOfActivity
+    public class S_NewsCategory : IS_NewsCategory
     {
         private readonly MainDbContext _context;
         private readonly IMapper _mapper;
 
-        public S_FieldOfActivity(MainDbContext conetxt, IMapper mapper) 
+        public S_NewsCategory (MainDbContext conetxt, IMapper mapper)
         {
             _context = conetxt;
             _mapper = mapper;
         }
-        public async Task<ResponseData<MRes_FieldOfActivity>> Create(MReq_FieldOfActivity request)
+        public async Task<ResponseData<MRes_NewsCategory>> Create(MReq_NewsCategory request)
         {
-            var res = new ResponseData<MRes_FieldOfActivity>();
+            var res = new ResponseData<MRes_NewsCategory>();
             try
             {
-                //var exitsField = await _context.FieldOfActivities.FirstOrDefaultAsync(x => x.FieldId == request.FieldId) != null;
-
-                //if (exitsField)
-                //{
-                //    res.error.message = "Mã lĩnh vực trùng lặp!";
-                //    return res;
-                //}
-
-                var data = new FieldOfActivity();
-                data.FieldName = request.FieldName;
+                var data = new NewsCategory();
+                data.NewsCategoryName = request.NewsCategoryName;
                 data.Status = request.IsActive;
                 data.CreateAt = DateTime.Now;
                 data.CreateBy = request.CreateBy;
 
-                _context.FieldOfActivities.Add(data);
+                _context.NewsCategories.Add(data);
                 var save = await _context.SaveChangesAsync();
                 if (save == 0)
                 {
@@ -84,13 +74,13 @@ namespace API_Sample.Application.Services
             var res = new ResponseData<int>();
             try
             {
-                var data = await _context.FieldOfActivities.FindAsync(id);
+                var data = await _context.NewsCategories.FindAsync(id);
                 if (data == null)
                 {
-                    res.error.message = "Không tìm thấy lĩnh vực hoạt động!";
+                    res.error.message = "Không tìm thấy Thể loại tin tức!";
                     return res;
                 }
-                _context.FieldOfActivities.Remove(data);
+                _context.NewsCategories.Remove(data);
                 var save = await _context.SaveChangesAsync();
 
                 if (save == 0)
@@ -99,7 +89,7 @@ namespace API_Sample.Application.Services
                     res.error.message = MessageErrorConstants.EXCEPTION_DO_NOT_DELETE;
                     return res;
                 }
-                res.data = data.FieldId;
+                res.data = data.NewsCategoryId;
                 res.result = 1;
                 res.error.message = MessageErrorConstants.DELETE_SUCCESS;
             }
@@ -109,22 +99,22 @@ namespace API_Sample.Application.Services
                 res.error.code = 500;
                 res.error.message = $"Exception: {ex.Message}\r\n{ex.InnerException?.Message}";
             }
-            return res ;
+            return res;
         }
 
-        public async Task<ResponseData<MRes_FieldOfActivity>> GetById(int id)
+        public async Task<ResponseData<MRes_NewsCategory>> GetById(int id)
         {
-            var res = new ResponseData<MRes_FieldOfActivity>();
+            var res = new ResponseData<MRes_NewsCategory>();
             try
             {
-                var data = await _context.FieldOfActivities.AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.FieldId == id);
+                var data = await _context.NewsCategories.AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.NewsCategoryId == id);
                 if (data == null)
                 {
                     res.error.message = MessageErrorConstants.DO_NOT_FIND_DATA;
                     return res;
                 }
-                var mapData = _mapper.Map<MRes_FieldOfActivity>(data);
+                var mapData = _mapper.Map<MRes_NewsCategory>(data);
                 res.data = mapData;
                 res.result = 1;
             }
@@ -137,13 +127,13 @@ namespace API_Sample.Application.Services
             return res;
         }
 
-        public async Task<ResponseData<List<MRes_FieldOfActivity>>> GetListByStatus(int status)
+        public async Task<ResponseData<List<MRes_NewsCategory>>> GetListByStatus(bool status)
         {
-            var res = new ResponseData<List<MRes_FieldOfActivity>>();
+            var res = new ResponseData<List<MRes_NewsCategory>>();
             try
             {
-                var data = await _context.FieldOfActivities.AsNoTracking().Where(x => x.Status == status).OrderBy(x => x.FieldName).ToListAsync();
-                res.data = _mapper.Map<List<MRes_FieldOfActivity>>(data);
+                var data = await _context.NewsCategories.AsNoTracking().Where(x => x.Status == status).OrderBy(x => x.NewsCategoryName).ToListAsync();
+                res.data = _mapper.Map<List<MRes_NewsCategory>>(data);
                 res.result = 1;
             }
             catch (Exception ex)
@@ -155,37 +145,31 @@ namespace API_Sample.Application.Services
             return res;
         }
 
-        public async Task<ResponseData<MRes_FieldOfActivity>> Update(MReq_FieldOfActivity request)
+        public async Task<ResponseData<MRes_NewsCategory>> Update(MReq_NewsCategory request)
         {
-            var res = new ResponseData<MRes_FieldOfActivity>();
+            var res = new ResponseData<MRes_NewsCategory>();
             try
             {
-                //var exitsField = await _context.FieldOfActivities.FirstOrDefaultAsync(x => x.FieldId == request.FieldId) != null;
-                //if(exitsField)
-                //{
-                //    res.error.message = "Mã trùng lặp!";
-                //    return res;
-                //}
-                var data = await _context.FieldOfActivities.FindAsync(request.FieldId);
+                var data = await _context.NewsCategories.FindAsync(request.NewsCategoryId);
                 if (data == null)
                 {
                     res.error.message = MessageErrorConstants.DO_NOT_FIND_DATA;
                     return res;
                 }
-                data.FieldName = request.FieldName;
+                data.NewsCategoryName = request.NewsCategoryName;
                 data.Status = request.IsActive;
                 data.UpdateAt = DateTime.Now;
                 data.UpdateBy = request.UpdateBy;
 
                 var save = _context.SaveChanges();
 
-                if(save == 0)
+                if (save == 0)
                 {
                     res.error.message = "";
                     res.error.message = MessageErrorConstants.EXCEPTION_DO_NOT_UPDATE;
                     return res;
                 }
-                var mapdata =  _mapper.Map<MRes_FieldOfActivity>(data);
+                var mapdata = _mapper.Map<MRes_NewsCategory>(data);
                 res.data = mapdata;
                 res.result = 1;
                 res.error.message = MessageErrorConstants.UPDATE_SUCCESS;
@@ -199,12 +183,12 @@ namespace API_Sample.Application.Services
             return res;
         }
 
-        public async Task<ResponseData<MRes_FieldOfActivity>> UpdateStatus(int id, int status, string updatedBy)
+        public async Task<ResponseData<MRes_NewsCategory>> UpdateStatus(int id, bool status, string updatedBy)
         {
-            var res = new ResponseData<MRes_FieldOfActivity>();
+            var res = new ResponseData<MRes_NewsCategory>();
             try
             {
-                var data = await _context.FieldOfActivities.FindAsync(id);
+                var data = await _context.NewsCategories.FindAsync(id);
                 if (data == null)
                 {
                     res.error.message = MessageErrorConstants.DO_NOT_FIND_DATA;
@@ -222,7 +206,7 @@ namespace API_Sample.Application.Services
                     res.error.message = MessageErrorConstants.EXCEPTION_DO_NOT_UPDATE;
                     return res;
                 }
-                var getById = await GetById(data.FieldId);
+                var getById = await GetById(data.NewsCategoryId);
                 res.data = getById.data;
                 res.result = 1;
                 res.error.message = MessageErrorConstants.UPDATE_SUCCESS;

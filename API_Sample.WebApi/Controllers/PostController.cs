@@ -31,7 +31,7 @@ namespace API_Sample.WebApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(MReq_Post request)
+        public async Task<IActionResult> Update([FromBody] MReq_Post request)
         {
             if (!ModelState.IsValid)
                 return Ok(new ResponseData<MRes_Post>(0, 400, DataAnnotationExtensionMethod.GetErrorMessage(ModelState)));

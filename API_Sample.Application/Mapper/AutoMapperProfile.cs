@@ -19,6 +19,8 @@ namespace API_Sample.Application.Mapper
             CreateMap<Post, MRes_Post>();
             CreateMap<Account, MRes_Account>();
             CreateMap<FieldOfActivity, MRes_FieldOfActivity>();
+            CreateMap<News, MRes_News>();
+            CreateMap<NewsCategory, MRes_NewsCategory>();
         }
     }
 }
