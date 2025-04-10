@@ -56,7 +56,7 @@ namespace API_Sample.WebApi.Controllers
             return Ok(res);
         }
 
-        [HttpPut("change-avatar")]
+        [HttpPut]
         public async Task<IActionResult> ChangeAvatar(IFormFile file, string user_name)
         {
             if (!ModelState.IsValid)

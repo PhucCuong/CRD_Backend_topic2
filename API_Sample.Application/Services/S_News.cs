@@ -46,45 +46,18 @@ namespace API_Sample.Application.Services
         {
             _context = context;
             _mapper = mapper;
+            // setip google drive 
 
-            // Đường dẫn tệp tin credentials.json
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GoogleDriveConfig", "webcrd-credentials.json");
 
-            // Đường dẫn tệp cache để lưu trữ thông tin xác thực
-            var cacheFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GoogleDriveConfig", "google-credentials-cache.json");
-
-            GoogleCredential credential;
-
-            if (File.Exists(cacheFilePath))
+            if (!File.Exists(path))
             {
-                // Đọc thông tin credential đã lưu trong cache
-                using (var stream = new FileStream(cacheFilePath, FileMode.Open, FileAccess.Read))
-                {
-                    credential = GoogleCredential.FromStream(stream)
-                                 .CreateScoped(DriveService.ScopeConstants.DriveFile);
-                }
-            }
-            else
-            {
-                // Nếu không có file cache, tạo mới từ credentials.json
-                if (!File.Exists(path))
-                {
-                    throw new FileNotFoundException("Không tìm thấy file cấu hình Google Drive!", path);
-                }
-
-                credential = GoogleCredential.FromFile(path)
-                                 .CreateScoped(DriveService.ScopeConstants.DriveFile);
-
-                // Lưu thông tin credential vào file cache để sử dụng lần sau
-                using (var stream = new FileStream(cacheFilePath, FileMode.Create, FileAccess.Write))
-                {
-                    var jsonCredential = credential.ToString(); // Không thể sử dụng .ToJson, thay vào đó dùng .ToString
-                    var writer = new StreamWriter(stream);
-                    writer.Write(jsonCredential);
-                }
+                throw new FileNotFoundException("Không tìm thấy file cấu hình Google Drive!", path);
             }
 
-            // Khởi tạo Google Drive Service
+            var credential = GoogleCredential.FromFile(path)
+                .CreateScoped(DriveService.ScopeConstants.DriveFile);
+
             _driveService = new DriveService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
